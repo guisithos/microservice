@@ -6,7 +6,7 @@ The microservice has two paths - index page and not_found.
 
 It is REST-compliant with basic CRUD operations - create, read, update and delete.
 
-Routing is based on regular expressions who are patterns that check and extract data from txt.
+Routing is based on regular expressions - patterns that check and extract data from txt.
 
 
 

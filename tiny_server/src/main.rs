@@ -11,10 +11,10 @@ const INDEX: &str = r#"
 <!doctype html>
 <html>
     <head>
-        <title>Rust Microservice</title>
+        <title>Rust tinyServer</title>
     </head>
     <body>
-        <h3>Rust Microservice</h3>
+        <h3>Rust tinyServer</h3>
     </body>
 </html>
 "#;
@@ -46,6 +46,8 @@ fn microservice_handler(req: Request<Body>, user_db: &UserDb)
         let method = req.method();
         let path = req.uri().path();
         let mut users = user_db.lock().unwrap();
+	  
+	//Check index if request path matches index page request   
         if INDEX_PATH.is_match(path) {
             if method == &Method::GET {
                 Response::new(INDEX.into())
@@ -62,6 +64,8 @@ fn microservice_handler(req: Request<Body>, user_db: &UserDb)
             } else {
                 response_with_code(StatusCode::METHOD_NOT_ALLOWED)
             }
+	//Captures returns object with values from all captured groups. If pattern matches
+	//we get an object stored in cap var.
         } else if let Some(cap) = USER_PATH.captures(path) {
             let user_id = cap.name("user_id").and_then(|m| {
                 m.as_str()

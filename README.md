@@ -1,5 +1,5 @@
 
-# Rust tiny server
+# Rust tiny server / microservice
 
 Using Hyper crate to study a microservice. This examble responds with a "Rust tinyServer" page. 
 The microservice has two paths - index page and not_found.

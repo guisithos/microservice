@@ -6,6 +6,16 @@ use serde::{de::{self, Visitor}, Deserialize, Deserializer, Serialize, Serialize
 pub const WHITE: Color = Color { red: 0xFF, green: 0xFF, blue: 0xFF };
 pub const BLACK: Color = Color { red: 0x00, green: 0x00, blue: 0x00 };
 
+#[derive(Debug, Fail)]
+pub enum ColorError {
+    #[fail(display = "parse color's component error: {}", _0)]
+    InvalidComponent(#[cause] ParseIntError),
+    #[fail(display = "invalid value: {}", value)]
+    InvalidValue {
+        value: String,
+    },
+}
+
 impl From<ParseIntError> for ColorError {
     fn from(err: ParseIntError) -> Self {
         ColorError::InvalidComponent(err)
@@ -31,11 +41,9 @@ impl fmt::Display for Color {
     }
 }
 
-//FromStr makes it possible to call parse method of str to parse struc fm string
 impl FromStr for Color {
     type Err = ColorError;
-    
-    //expression need to have textual value either black or white or start with #
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "white" => Ok(WHITE.to_owned()),
@@ -62,8 +70,6 @@ impl Serialize for Color {
     }
 }
 
-//Implements visitor trait of serde - used to extract value of a specific type
-//from differente inputs. It can convert string to a color instance. (nice)
 struct ColorVisitor;
 
 impl<'de> Visitor<'de> for ColorVisitor {
@@ -86,20 +92,6 @@ impl<'de> Visitor<'de> for ColorVisitor {
     {
         self.visit_str(value.as_ref())
     }
-}
-
-#[derive(Debug, Fail)]
-
-//Error handling 
-pub enum ColorError {
-    #[fail(display = "parse color's component error: {}", _0)]
-    //parse issues 
-    InvalidComponent(#[cause] ParseIntError),
-    #[fail(display = "invalid value: {}", value)]
-    //parse wrong values
-    InvalidValue {
-        value: String,
-    },
 }
 
 impl<'a> Deserialize<'a> for Color {

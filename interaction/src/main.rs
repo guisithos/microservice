@@ -56,16 +56,6 @@ enum RngRequest {
     },
 }
 
-fn main() {
-    let addr = ([127, 0, 0, 1], 8080).into();
-    let builder = Server::bind(&addr);
-    let server = builder.serve(|| {
-        service_fn(microservice_handler)
-    });
-    let server = server.map_err(drop);
-    hyper::rt::run(server);
-}
-
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 enum RngResponse {
@@ -82,9 +72,13 @@ enum Format {
     Cbor,
 }
 
+fn color_range(from: u8, to: u8) -> Uniform<u8> {
+    let (from, to) = (min(from, to), max(from, to));
+    Uniform::new_inclusive(from, to)
+}
 
 fn handle_request(request: RngRequest) -> RngResponse {
-    //create random-number-generator instance
+     //create random-number-generator instance
     let mut rng = rand::thread_rng();
     match request {
         RngRequest::Uniform { range } => {
@@ -126,14 +120,8 @@ fn serialize(format: &str, resp: &RngResponse) -> Result<Vec<u8>, Error> {
     }
 }
 
-fn color_range(from: u8, to: u8) -> Uniform<u8> {
-    let (from, to) = (min(from, to), max(from, to));
-    uniform::new_inclusive(from, to)
-}
-
-
 fn microservice_handler(req: Request<Body>)
-    -> Box<Future<Item=Response<Body>, Error=hyper::Error> + Send>
+    -> Box<dyn Future<Item=Response<Body>, Error=hyper::Error> + Send>
 {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/") | (&Method::GET, "/random") => {
@@ -147,10 +135,9 @@ fn microservice_handler(req: Request<Body>)
                 query["format"].as_str().unwrap_or("json").to_string()
             };
 	    //into_body returns body of the request - stream of chunks that 
-	    //implement stream trait.
+	    //implement stream trait.	
             let body = req.into_body().concat2()
                 .map(move |chunks| {
-
 		    //serde_json serialize to json format and use it to read
 		    //an instance from buffer.
                     let res = serde_json::from_slice::<RngRequest>(chunks.as_ref())
@@ -181,4 +168,12 @@ fn microservice_handler(req: Request<Body>)
     }
 }
 
-
+fn main() {
+    let addr = ([127, 0, 0, 1], 8080).into();
+    let builder = Server::bind(&addr);
+    let server = builder.serve(|| {
+        service_fn(microservice_handler)
+    });
+    let server = server.map_err(drop);
+    hyper::rt::run(server);
+}

@@ -1,5 +1,8 @@
 ## Running
 
+**Serde Crate**
+
+>*Serde is a framework for serializing and deserializing Rust data structures efficiently and generically.*
 
 
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)

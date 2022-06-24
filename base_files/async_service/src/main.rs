@@ -91,6 +91,9 @@ fn alt_udp_echo() -> Result<(), Error> {
     Ok(tokio::run(execute_all))
 }
 
+/** Create channel and stream from int sequence. Send
+All itens to channel, it read the values and print to console.
+*/
 fn send_spawn() {
     let (tx_sink, rx_stream) = mpsc::channel::<u8>(8);
     let receiver = rx_stream.fold(0, |acc, value| {

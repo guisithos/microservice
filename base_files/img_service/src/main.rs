@@ -46,7 +46,9 @@ fn microservice_handler(req: Request<Body>, files: &Path)
         (&Method::GET, "/") => {
             Box::new(future::ok(Response::new(INDEX.into())))
         },
+	//expects post method and /upload path. This don't filter anything, don't ever use like this
         (&Method::POST, "/upload") => {
+	    //set the file name to random. 
             let name: String = thread_rng().sample_iter(&Alphanumeric).take(20).collect();
             let mut filepath = files.to_path_buf();
             filepath.push(&name);
